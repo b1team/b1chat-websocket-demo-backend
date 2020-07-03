@@ -4,12 +4,17 @@ package chatroom.models;
 
 public class Response {
 	private String status;
-	private String message;
 	private int code;
+	private String message;
 	
 	public String getStatus() {
 		return status;
 	}
+	
+	public Integer getCode() {
+		return code;
+	}
+	
 	
 	public String getMessage() {
 		return message;
@@ -21,11 +26,7 @@ public class Response {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
-	public int getCode() {
-		return code;
-	}
-
+	
 	public void setCode(int code) {
 		this.code = code;
 	}
