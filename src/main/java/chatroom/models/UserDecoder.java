@@ -1,5 +1,5 @@
 package chatroom.models;
-
+import chatroom.utils.*;
 import java.io.StringReader;
 
 import javax.json.Json;
@@ -7,7 +7,8 @@ import javax.json.JsonObject;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter; 
 public class UserDecoder implements Decoder.Text<User>{
 
 	@Override
@@ -21,16 +22,27 @@ public class UserDecoder implements Decoder.Text<User>{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	public String dateTime() {
+		LocalDateTime currentDateTime = LocalDateTime.now();  
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");  
+		String datetime = currentDateTime.format(format);   
+		return datetime;
+	}
+	
 	@Override
 	public User decode(String jsonMessage) throws DecodeException {
 		JsonObject jsonObject = Json
 		        .createReader(new StringReader(jsonMessage)).readObject();
 			User user = new User();
-			
-			user.setUsername(jsonObject.getString("username"));
-			user.setPassword(jsonObject.getString("password"));
-			user.setRaw(jsonMessage);
+			String username = jsonObject.getString("username");
+			String password = jsonObject.getString("password");
+			String datetime = dateTime();
+
+			user.setUsername(username);
+			user.setPassword(Hash.getMd5(password).toString());
+			user.setToken(Hash.getMd5(username.concat(password).toString()));
+			user.setDatetime(datetime);
 			return user;
 	}
 
@@ -44,8 +56,5 @@ public class UserDecoder implements Decoder.Text<User>{
 		      return false;
 		    }
 		  }
-
-	
-	
 }
 

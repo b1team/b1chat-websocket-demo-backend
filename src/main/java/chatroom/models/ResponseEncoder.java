@@ -22,7 +22,7 @@ public class ResponseEncoder implements Encoder.Text<Response>{
 
 	@Override
 	public String encode(Response response) throws EncodeException {
-		JsonObject jsonObject = Json.createObjectBuilder().add("status", response.getStatus())
+		JsonObject jsonObject = Json.createObjectBuilder().add("status", response.getStatus()).add("code", response.getCode())
 				.add("message", response.getMessage()).build();
 		return jsonObject.toString();
 	}
