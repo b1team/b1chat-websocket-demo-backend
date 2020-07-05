@@ -31,10 +31,11 @@ public class Response {
 	public String getMessage() {
 		return message;
 	}
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	public void setMessage(String message) {
 		this.message = message;
 	}
@@ -47,4 +48,10 @@ public class Response {
 		this.code = code;
 	}
 
+	public String toString() {
+		JsonObject jsonObject = Json.createObjectBuilder().add("status", this.getStatus())
+				.add("message", this.getMessage()).add("payload", this.getPayload()).add("code", this.getCode())
+				.build();
+		return jsonObject.toString();
+	}
 }

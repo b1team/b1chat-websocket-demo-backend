@@ -1,5 +1,7 @@
 package chatroom.models;
 
+import java.util.logging.Logger;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -8,17 +10,16 @@ import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
 public class ResponseEncoder implements Encoder.Text<Response> {
+	private Logger logger = Logger.getLogger("ResponseEncoderLogger");
 
 	@Override
 	public void init(EndpointConfig config) {
-		// TODO Auto-generated method stub
-
+		logger.info("Init response encoder");
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-
+		logger.info("Distroyed Response Encoder");
 	}
 
 	@Override
@@ -33,7 +34,7 @@ public class ResponseEncoder implements Encoder.Text<Response> {
 			JsonObject jsonObject = builder.build();
 			return jsonObject.toString();
 		} catch (Exception ex) {
-			System.out.println(ex);
+			logger.info(ex.toString());
 			return "";
 		}
 	}
