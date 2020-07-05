@@ -19,7 +19,7 @@ public class DangKy {
 	public void onMessage(User user, Session session) throws IOException, EncodeException {
 		HashMap<String,Object> account = new HashMap<String,Object>();
 		DataBase db = new DataBase();
-		db.init();;
+		db.init();
 		FindIterable<Document> result = db.findOne("username", user.getUsername());
 		if(result.first() != null) {
 			ResponseSender.response(session, "error", 1, "Tên tài khoản đã được sử dụng");
