@@ -1,16 +1,33 @@
 package chatroom.models;
 
-
+import javax.json.Json;
+import javax.json.JsonObject;
 
 public class Response {
 	private String status;
 	private String message;
 	private int code;
-	
+	private JsonObject payload;
+
+	public void init(){
+		code = 1;
+		status = "";
+		payload = Json.createObjectBuilder().build();
+	    message = "";
+	}
+
 	public String getStatus() {
 		return status;
 	}
-	
+
+	public JsonObject getPayload() {
+		return payload;
+	}
+
+	public void setPayload(JsonObject payload) {
+		this.payload = payload;
+	}
+
 	public String getMessage() {
 		return message;
 	}
