@@ -18,7 +18,6 @@ public class DangKy {
 	@OnMessage
 	public void onMessage(User user, Session session) throws IOException, EncodeException {
 		Database db = new Database();
-		db.init();
 		HashMap<String,Object> account = new HashMap<String,Object>();
 		FindIterable<Document> result = db.findOne("username", user.getUsername());
 		Response response = new Response();

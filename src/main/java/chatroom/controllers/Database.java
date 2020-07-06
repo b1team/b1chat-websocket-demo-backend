@@ -19,7 +19,7 @@ public class Database {
 	private static String mongodbCol = null;
 	private static MongoDatabase mongoDB = null;
 
-	public void init() {
+	public Database() {
 		Config config = new Config();
 		JSONObject jsonObject = config.ReadFile();
 		try{
