@@ -1,6 +1,8 @@
 package chatroom.controllers;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.json.JsonObject;
@@ -11,26 +13,40 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import chatroom.config.Config;
 import chatroom.models.*;
 
-@ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class }, decoders = {
-		EventDecoder.class })
+@ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class,
+		EventEncoder.class }, decoders = { EventDecoder.class })
 public class PhongChat {
 	private Logger logger = Logger.getLogger("PhongChatLogger");
+	private static HashMap<String, Session> onlineUsers = new HashMap<>();
+	private Map<String, Object> config = Config.createConfig();
 
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
+		Response response = new Response();
 		try {
-			Database db = new Database("users");
+			Database userDB = new Database("users");
 			if (event.getAction().equals("login")) {
 				JsonObject eventPayload = event.getPayload();
-				DangNhap.dangNhap(session, db, eventPayload);
+				DangNhap.dangNhap(session, userDB, eventPayload);
 			} else if (event.getAction().equals("send_message")) {
 				// TODO: Logic gui tin nhan
+			} else if (event.getAction().equals("join_chat")) {
+				JsonObject eventPayload = event.getPayload();
+				if (eventPayload != null) {
+					String token = eventPayload.getString("token");
+					response = JoinChat.join(config, onlineUsers, token, session);
+				} else {
+					response.setMessage("Invalid payload");
+				}
 			}
 		} catch (Exception exception) {
 			logger.info(exception.toString());
+			response.setMessage("An error occurred while parse payload");
 		}
+		session.getBasicRemote().sendObject(response);
 	}
 
 	@OnOpen
@@ -42,4 +58,5 @@ public class PhongChat {
 	public void onClose() {
 		logger.info("Connection closed");
 	}
+
 }
