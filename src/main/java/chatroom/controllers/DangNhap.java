@@ -1,0 +1,51 @@
+package chatroom.controllers;
+
+import java.util.logging.Logger;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.websocket.Session;
+
+import com.mongodb.client.FindIterable;
+
+import org.bson.Document;
+
+import chatroom.models.Response;
+import chatroom.models.ResponseSender;
+import chatroom.utils.Hash;
+
+public class DangNhap {
+    private Logger logger = Logger.getLogger("DangNhapLogger");
+
+    public void init() {
+        logger.info("Created DangNhap instance");
+    }
+
+    public static void dangNhap(Session session, Database db, JsonObject eventPayload) {
+        Response response = new Response();
+        String username = eventPayload.getString("username");
+        String md5Password = Hash.getMd5(eventPayload.getString("password"));
+        FindIterable<Document> result = db.findDouble("username", username, "password", md5Password);
+        String tokenKeyName = "token";
+        Document doc = result.first();
+        if (doc != null) {
+            String token = doc.getString(tokenKeyName);
+            if (token != null) {
+                JsonObject responsePayload = Json.createObjectBuilder().add("token", token).build();
+                response.setStatus("success");
+                response.setCode(0);
+                response.setMessage("Đăng nhập thành công");
+                response.setPayload(responsePayload);
+            } else {
+                response.setStatus("failed");
+                response.setCode(1);
+                response.setMessage("Khong tim thay token");
+            }
+        } else {
+            response.setStatus("failed");
+            response.setCode(1);
+            response.setMessage("Sai tên đăng nhập hoặc mật khẩu");
+        }
+        ResponseSender.send(session, response);
+    }
+}

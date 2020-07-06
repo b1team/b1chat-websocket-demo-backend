@@ -1,0 +1,14 @@
+{
+    "mongodb": {
+        "users":{
+            "uri": "",
+            "dbname": "",
+            "collection": ""
+        },
+        "messages": {
+            "uri": "",
+            "dbname": "",
+            "collection": ""
+        }
+    }
+ }

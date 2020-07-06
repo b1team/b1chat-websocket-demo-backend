@@ -1,7 +1,7 @@
 package chatroom.controllers;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.json.JsonObject;
 import javax.websocket.EncodeException;
@@ -11,68 +11,35 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.bson.Document;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.result.InsertOneResult;
 import chatroom.models.*;
-import chatroom.utils.*;
 
 @ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class }, decoders = {
 		EventDecoder.class })
 public class PhongChat {
+	private Logger logger = Logger.getLogger("PhongChatLogger");
+
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
-		MongoClient client = MongoClients.create("mongodb://b1corp:1@45.124.94.20:27017");
-		if (event.getAction().equals("login")) {
-			MongoDatabase db = client.getDatabase("login_test");
-			MongoCollection<Document> col = db.getCollection("users");
-			JsonObject payload = event.getPayload();
-			String username = payload.getString("username");
-			// String password = payload.getString("password");
-			String md5Password = Hash.getMd5(payload.getString("password"));
-			FindIterable<Document> result = col
-					.find(Filters.and(Filters.eq("username", username), Filters.eq("password", md5Password)));
-			Response response = new Response();
-			if(result.first() != null) {
-				response.setStatus("success");
-				response.setCode(0);
-				response.setMessage("Đăng nhập thành công");
-				// Tra token o day
+		try {
+			Database db = new Database("users");
+			if (event.getAction().equals("login")) {
+				JsonObject eventPayload = event.getPayload();
+				DangNhap.dangNhap(session, db, eventPayload);
+			} else if (event.getAction().equals("send_message")) {
+				// TODO: Logic gui tin nhan
 			}
-			else {
-				response.setStatus("failed");
-				response.setCode(1);
-				response.setMessage("Sai tên đăng nhập hoặc mật khẩu");
-			}
-			try {
-				session.getBasicRemote().sendObject(response);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (EncodeException e) {
-				e.printStackTrace();
-			}
-		} else if (event.getAction().equals("send_message")) {
-
+		} catch (Exception exception) {
+			logger.info(exception.toString());
 		}
-
 	}
 
 	@OnOpen
 	public void onOpen() {
-		System.out.println("Client connected");
-
+		logger.info("Client connected");
 	}
 
 	@OnClose
 	public void onClose() {
-		System.out.println("Connection closed");
+		logger.info("Connection closed");
 	}
 }
