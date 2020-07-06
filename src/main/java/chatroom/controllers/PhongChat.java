@@ -21,7 +21,7 @@ public class PhongChat {
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
 		try {
-			Database db = new Database();
+			Database db = new Database("users");
 			if (event.getAction().equals("login")) {
 				JsonObject eventPayload = event.getPayload();
 				DangNhap.dangNhap(session, db, eventPayload);

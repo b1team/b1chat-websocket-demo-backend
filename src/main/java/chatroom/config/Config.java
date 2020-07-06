@@ -1,20 +1,23 @@
 package chatroom.config;
 
-import java.io.FileReader;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Config {
-    public JSONObject ReadFile() {
-        JSONParser parser = new JSONParser();
+    private Config() {
+        // create config instance
+    }
+
+    public static Map<String, Object> createConfig() {
         String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
         String configPath = rootPath + "config.json";
         try{
-            Object obj = parser.parse(new FileReader(configPath));
-            JSONObject jsonObject = (JSONObject) obj;
-            return jsonObject;
+            HashMap<String, Object> mapper = new ObjectMapper().readValue(new File(configPath), HashMap.class);
+			Map<String, Object> mongoConfig = (Map<String, Object>) mapper.get("mongodb");
+            return mongoConfig;
         }catch(Exception e){
             e.printStackTrace();
             return null;

@@ -1,6 +1,7 @@
 package chatroom.controllers;
 
-import java.util.HashMap;
+import java.util.Map;
+
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -9,48 +10,47 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
-
 import org.bson.Document;
-import org.json.simple.JSONObject;
 
 import chatroom.config.Config;
 
 public class Database {
-	private static String mongodbCol = null;
-	private static MongoDatabase mongoDB = null;
+	private static MongoDatabase mongoDB= null;
+	private static String mongoCollection= null;
+	private static Map<String, Object> config = Config.createConfig();
 
-	public Database() {
-		Config config = new Config();
-		JSONObject jsonObject = config.ReadFile();
+	public Database(String MongoConfig){
 		try{
-			String mongoURI = (String) jsonObject.get("mongodb_uri");
-			String mongodbName = (String) jsonObject.get("mongodb_name");
-			MongoClient mongoClient = MongoClients.create(mongoURI);
-			mongoDB = mongoClient.getDatabase(mongodbName);
-			mongodbCol = (String) jsonObject.get("mongodb_collection");
+			Map<String, Object> userConfig = (Map<String, Object>) config.get(MongoConfig);
+			String mongoUri = userConfig.get("uri").toString();
+			String mongoDbName = userConfig.get("dbname").toString();
+			mongoCollection = userConfig.get("collection").toString();
+			MongoClient mongoClient = MongoClients.create(mongoUri);
+			mongoDB = mongoClient.getDatabase(mongoDbName);
 		}catch(Exception e){
 			e.printStackTrace();
-			mongodbCol = null;
-			mongoDB = null;
+			mongoDB= null;
+			mongoCollection= null;
 		}
 	}
 
-	public void insert(HashMap<String, Object> account) {
-		JSONObject user = new JSONObject(account);
-		Document doc = Document.parse(user.toJSONString());
-		MongoCollection<Document> col = mongoDB.getCollection(mongodbCol);
-		InsertOneResult result = col.insertOne(doc);
-		System.out.println(result.toString());
+	public void insert(Document account) {
+		try{
+			MongoCollection<Document> col = mongoDB.getCollection(mongoCollection);
+			InsertOneResult result = col.insertOne(account);
+			System.out.println(result.toString());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	public FindIterable<Document> findOne(String fieldName, String value) {
-		MongoCollection<Document> col = mongoDB.getCollection(mongodbCol);
+		MongoCollection<Document> col = mongoDB.getCollection(mongoCollection);
 		FindIterable<Document> result = col.find(Filters.eq(fieldName, value));
 		return result;
 	}
-
 	public FindIterable<Document> findDouble(String fieldName1, String value1, String fieldName2, String value2) {
-		MongoCollection<Document> col = mongoDB.getCollection(mongodbCol);
+		MongoCollection<Document> col = mongoDB.getCollection(mongoCollection);
 		FindIterable<Document> result = col
 			.find(Filters.and(Filters.eq(fieldName1, value1), Filters.eq(fieldName2, value2)));
 		return result;

@@ -1,7 +1,6 @@
 package chatroom.controllers;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
@@ -17,8 +16,8 @@ import chatroom.models.*;
 public class DangKy {
 	@OnMessage
 	public void onMessage(User user, Session session) throws IOException, EncodeException {
-		Database db = new Database();
-		HashMap<String,Object> account = new HashMap<String,Object>();
+		Database db = new Database("users");
+		Document account = new Document();
 		FindIterable<Document> result = db.findOne("username", user.getUsername());
 		Response response = new Response();
 		if(result.first() != null) {
@@ -34,10 +33,10 @@ public class DangKy {
 			response.setMessage("Đăng ký thành công!");
 			ResponseSender.send(session, response);
 
-			account.put("token", user.getToken());
-			account.put("createAt", user.getDatetime());
-			account.put("password", user.getPassword());
-			account.put("username", user.getUsername());
+			account.append("username", user.getUsername());
+			account.append("password", user.getPassword());
+			account.append("token", user.getToken());
+			account.append("createAt", user.getDatetime());
 			db.insert(account);
 		}
 	}
