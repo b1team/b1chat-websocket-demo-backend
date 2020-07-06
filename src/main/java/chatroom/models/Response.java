@@ -9,7 +9,7 @@ public class Response {
 	private int code;
 	private JsonObject payload;
 
-	public void init(){
+	public Response() {
 		code = 1;
 		status = "";
 		payload = Json.createObjectBuilder().build();

@@ -1,4 +1,4 @@
-package chatroom.Config;
+package chatroom.config;
 
 import java.io.FileReader;
 

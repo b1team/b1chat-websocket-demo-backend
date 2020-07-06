@@ -11,7 +11,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import chatroom.Config.DataBase;
 import chatroom.models.*;
 
 @ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class }, decoders = {
@@ -22,7 +21,7 @@ public class PhongChat {
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
 		try {
-			DataBase db = new DataBase();
+			Database db = new Database();
 			if (event.getAction().equals("login")) {
 				JsonObject eventPayload = event.getPayload();
 				DangNhap.dangNhap(session, db, eventPayload);

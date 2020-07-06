@@ -1,4 +1,4 @@
-package chatroom.Config;
+package chatroom.controllers;
 
 import java.util.HashMap;
 
@@ -13,7 +13,9 @@ import com.mongodb.client.result.InsertOneResult;
 import org.bson.Document;
 import org.json.simple.JSONObject;
 
-public class DataBase {
+import chatroom.config.Config;
+
+public class Database {
 	private static String mongodbCol = null;
 	private static MongoDatabase mongoDB = null;
 
