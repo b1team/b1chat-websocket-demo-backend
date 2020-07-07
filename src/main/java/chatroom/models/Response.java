@@ -11,7 +11,7 @@ public class Response {
 
 	public Response() {
 		code = 1;
-		status = "";
+		status = "failed";
 		payload = Json.createObjectBuilder().build();
 	    message = "";
 	}

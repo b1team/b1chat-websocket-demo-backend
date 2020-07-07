@@ -4,19 +4,19 @@ import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageEncoder implements Encoder.Text<Message> {
-	@Override
+public class EventEncoder implements Encoder.Text<Event>{
+    @Override
 	public void init(EndpointConfig config) {
-		// create message encoder
+        // Create encoder
 	}
 
 	@Override
 	public void destroy() {
-		// destroy message encoder
+        // destroy encoder
 	}
 
 	@Override
-	public String encode(Message message) throws EncodeException {
-		return message.toJson().toString();
+	public String encode(Event event) throws EncodeException {
+		return event.toJson().toString();
 	}
 }
