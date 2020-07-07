@@ -21,6 +21,7 @@ public class DangNhap {
 
     public static Response dangNhap(Database db, JsonObject eventPayload) {
         Response response = new Response();
+        response.setType("login");
         String username = eventPayload.getString("username");
         String md5Password = Hash.getMd5(eventPayload.getString("password"));
         FindIterable<Document> result = db.findDouble("username", username, "password", md5Password);
@@ -30,17 +31,14 @@ public class DangNhap {
             String token = doc.getString(tokenKeyName);
             if (token != null) {
                 JsonObject responsePayload = Json.createObjectBuilder().add("token", token).build();
-                response.setStatus("success");
                 response.setCode(0);
                 response.setMessage("Đăng nhập thành công");
                 response.setPayload(responsePayload);
             } else {
-                response.setStatus("failed");
                 response.setCode(1);
                 response.setMessage("Khong tim thay token");
             }
         } else {
-            response.setStatus("failed");
             response.setCode(1);
             response.setMessage("Sai tên đăng nhập hoặc mật khẩu");
         }

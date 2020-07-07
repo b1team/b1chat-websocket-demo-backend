@@ -29,8 +29,20 @@ public class Event {
 	}
 
 	public JsonObject toJson() {
-		return Json.createObjectBuilder()
-					.add("action", action)
-					.add("payload", payload).build();
+		return Json.createObjectBuilder().add("action", action).add("payload", payload).build();
+	}
+
+	public static Event createResponseEvent(Response response) {
+		Event event = new Event();
+		event.action = "response";
+		event.payload = response.toJson();
+		return event;
+	}
+
+	public static Event createMessageEvent(Message message) {
+		Event event = new Event();
+		event.action = "send_message";
+		event.payload = message.toJson();
+		return event;
 	}
 }

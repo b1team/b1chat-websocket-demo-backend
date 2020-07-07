@@ -30,14 +30,15 @@ public class JoinChat {
                 username = defaultUsername;
             }
             Message message = new Message();
-            message.setUsername(username);
+            message.setUsername("System");
             message.setContent(String.format("%s đã tham gia nhóm chat", username));
 
             MessageSender.broadcast(message, onlineUsers.values());
             onlineUsers.put(token, session);
+            System.out.println(String.format("%s join with id: %s", username, session.getId()));
             // tao response thanh cong
+            response.setType("join_chat");
             response.setCode(0);
-            response.setStatus("success");
             response.setMessage("Tham gia nhóm chat thành công");
         } else {
             response.setMessage("Invalid Token");

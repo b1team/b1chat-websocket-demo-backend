@@ -4,10 +4,10 @@ import java.io.IOException;
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
 
-public class ResponseSender {
-	public static void send(Session session, Response response){
+public class EventSender {
+	public static void send(Session session, Event event){
 		try {
-			session.getBasicRemote().sendObject(response);
+			session.getBasicRemote().sendObject(event);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (EncodeException e) {
