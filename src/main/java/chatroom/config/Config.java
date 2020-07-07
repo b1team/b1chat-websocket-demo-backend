@@ -16,8 +16,7 @@ public class Config {
         String configPath = rootPath + "config.json";
         try{
             HashMap<String, Object> mapper = new ObjectMapper().readValue(new File(configPath), HashMap.class);
-			Map<String, Object> mongoConfig = (Map<String, Object>) mapper.get("mongodb");
-            return mongoConfig;
+            return mapper;
         }catch(Exception e){
             e.printStackTrace();
             return null;

@@ -1,54 +1,82 @@
 package chatroom.controllers;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Logger;
 
+import javax.json.JsonObject;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import org.bson.Document;
+
 import com.mongodb.client.FindIterable;
-import chatroom.models.*;
 
-@ServerEndpoint(value = "/dang-ky", encoders = { ResponseEncoder.class }, decoders = { UserDecoder.class })
+import org.bson.Document;
+
+import chatroom.models.Event;
+import chatroom.models.EventDecoder;
+import chatroom.models.Response;
+import chatroom.models.ResponseEncoder;
+import chatroom.models.ResponseSender;
+import chatroom.utils.Hash;
+
+@ServerEndpoint(value = "/dang-ky", encoders = { ResponseEncoder.class }, decoders = { EventDecoder.class })
 public class DangKy {
-	@OnMessage
-	public void onMessage(User user, Session session) throws IOException, EncodeException {
-		Database db = new Database("users");
-		Document account = new Document();
-		FindIterable<Document> result = db.findOne("username", user.getUsername());
-		Response response = new Response();
-		if(result.first() != null) {
-			response.setStatus("error");
-			response.setCode(1);
-			response.setMessage("Tên tài khoản đã được sử dụng");
-			ResponseSender.send(session, response);
-			return;
-		}
-		else {
-			response.setStatus("success");
-			response.setCode(0);
-			response.setMessage("Đăng ký thành công!");
-			ResponseSender.send(session, response);
+	private Logger logger = Logger.getLogger("DangKyLogger");
 
-			account.append("username", user.getUsername());
-			account.append("password", user.getPassword());
-			account.append("token", user.getToken());
-			account.append("createAt", user.getDatetime());
-			db.insert(account);
+	@OnMessage
+	public void onMessage(Event event, Session session) throws IOException, EncodeException {
+		if(event.getAction().equals("register")){
+			Database db = new Database("users");
+			Document account = new Document();
+			JsonObject eventPayload = event.getPayload();
+	
+			String username = eventPayload.getString("username");
+			String md5Password = Hash.getMd5(eventPayload.getString("password"));
+			String token = Hash.getMd5(username.concat(eventPayload.getString("password")).toString());
+			
+			FindIterable<Document> result = db.findOne("username", username);
+			Response response = new Response();
+			if(result.first() != null) {
+				response.setStatus("error");
+				response.setCode(1);
+				response.setMessage("Tên tài khoản đã được sử dụng");
+				ResponseSender.send(session, response);
+				return;
+			}
+			else {
+				response.setStatus("success");
+				response.setCode(0);
+				response.setMessage("Đăng ký thành công!");
+				ResponseSender.send(session, response);
+
+				account.append("username", username);
+				account.append("password", md5Password);
+				account.append("token", token);
+				account.append("createAt", dateTime());
+				db.insert(account);
+			}
 		}
 	}
-	  
+
+	public String dateTime() {
+		LocalDateTime currentDateTime = LocalDateTime.now();  
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");  
+		String datetime = currentDateTime.format(format);   
+		return datetime;
+	}
 
 	@OnOpen
 	public void onOpen() {
-		System.out.println("Client connected");
+		logger.info("Client connected");
 	}
 
 	@OnClose
 	public void onClose() {
-		System.out.println("Connection closed");
+		logger.info("Connection closed");
 	}
 }
