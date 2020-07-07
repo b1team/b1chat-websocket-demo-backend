@@ -4,20 +4,24 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 public class Response {
-	private String status;
 	private String message;
 	private int code;
+	private String type;
 	private JsonObject payload;
 
 	public Response() {
+		type = "invalid";
 		code = 1;
-		status = "failed";
 		payload = Json.createObjectBuilder().build();
-	    message = "";
+		message = "";
 	}
 
-	public String getStatus() {
-		return status;
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public JsonObject getPayload() {
@@ -32,10 +36,6 @@ public class Response {
 		return message;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public void setMessage(String message) {
 		this.message = message;
 	}
@@ -48,10 +48,9 @@ public class Response {
 		this.code = code;
 	}
 
-	public String toString() {
-		JsonObject jsonObject = Json.createObjectBuilder().add("status", this.getStatus())
-				.add("message", this.getMessage()).add("payload", this.getPayload()).add("code", this.getCode())
-				.build();
-		return jsonObject.toString();
+	public JsonObject toJson() {
+		JsonObject jsonObject = Json.createObjectBuilder().add("message", this.getMessage())
+				.add("response_payload", this.getPayload()).add("code", this.getCode()).add("type", this.getType()).build();
+		return jsonObject;
 	}
 }

@@ -14,8 +14,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import chatroom.models.*;
 
-@ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class,
-		EventEncoder.class }, decoders = { EventDecoder.class })
+@ServerEndpoint(value = "/phong-chat", encoders = {EventEncoder.class }, decoders = { EventDecoder.class })
 public class PhongChat {
 	private Logger logger = Logger.getLogger("PhongChatLogger");
 	private static HashMap<String, Session> onlineUsers = new HashMap<>();
@@ -25,11 +24,15 @@ public class PhongChat {
 		Response response = new Response();
 		try {
 			Database userDB = new Database("users");
-			if (event.getAction().equals("login")) {
+			Database MessageDB = new Database("messages");
+			if (event.getAction().equals("login")) { //event
 				JsonObject eventPayload = event.getPayload();
 				response = DangNhap.dangNhap(userDB, eventPayload);
 			} else if (event.getAction().equals("send_message")) {
-				// TODO: Logic gui tin nhan
+				JsonObject eventPayload = event.getPayload();
+				String token = eventPayload.getString("token");
+				String content = eventPayload.getString("content");
+				response = Chat.send(userDB, MessageDB, onlineUsers, token, content);
 			} else if (event.getAction().equals("join_chat")) {
 				JsonObject eventPayload = event.getPayload();
 				if (eventPayload != null) {
@@ -43,7 +46,7 @@ public class PhongChat {
 			logger.info(exception.toString());
 			response.setMessage("An error occurred while parse payload");
 		}
-		ResponseSender.send(session, response);
+		EventSender.send(session, Event.createResponseEvent(response));
 	}
 
 	@OnOpen
