@@ -2,7 +2,6 @@ package chatroom.controllers;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.json.JsonObject;
@@ -13,7 +12,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import chatroom.config.Config;
 import chatroom.models.*;
 
 @ServerEndpoint(value = "/phong-chat", encoders = { ResponseEncoder.class, MessageEncoder.class,
@@ -21,7 +19,6 @@ import chatroom.models.*;
 public class PhongChat {
 	private Logger logger = Logger.getLogger("PhongChatLogger");
 	private static HashMap<String, Session> onlineUsers = new HashMap<>();
-	private Map<String, Object> config = Config.createConfig();
 
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
@@ -37,7 +34,7 @@ public class PhongChat {
 				JsonObject eventPayload = event.getPayload();
 				if (eventPayload != null) {
 					String token = eventPayload.getString("token");
-					response = JoinChat.join(config, onlineUsers, token, session);
+					response = JoinChat.join(userDB, onlineUsers, token, session);
 				} else {
 					response.setMessage("Invalid payload");
 				}
