@@ -15,8 +15,7 @@ public class Config {
         String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
         String configPath = rootPath + "config.json";
         try{
-            HashMap<String, Object> mapper = new ObjectMapper().readValue(new File(configPath), HashMap.class);
-            return mapper;
+            return (new ObjectMapper().readValue(new File(configPath), HashMap.class));
         }catch(Exception e){
             e.printStackTrace();
             return null;
