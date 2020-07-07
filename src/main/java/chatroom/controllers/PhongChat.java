@@ -27,7 +27,7 @@ public class PhongChat {
 			Database userDB = new Database("users");
 			if (event.getAction().equals("login")) {
 				JsonObject eventPayload = event.getPayload();
-				DangNhap.dangNhap(session, userDB, eventPayload);
+				response = DangNhap.dangNhap(userDB, eventPayload);
 			} else if (event.getAction().equals("send_message")) {
 				// TODO: Logic gui tin nhan
 			} else if (event.getAction().equals("join_chat")) {
@@ -43,7 +43,7 @@ public class PhongChat {
 			logger.info(exception.toString());
 			response.setMessage("An error occurred while parse payload");
 		}
-		session.getBasicRemote().sendObject(response);
+		ResponseSender.send(session, response);
 	}
 
 	@OnOpen

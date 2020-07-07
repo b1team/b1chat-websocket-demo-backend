@@ -1,14 +1,9 @@
 {
     "mongodb": {
         "users":{
-            "uri": "",
-            "dbname": "",
-            "collection": ""
-        },
-        "messages": {
-            "uri": "",
-            "dbname": "",
-            "collection": ""
+            "uri": "mongodb://b1corp:1@45.124.94.20:27017",
+            "dbname": "login_test",
+            "collection": "users"
         }
     }
  }

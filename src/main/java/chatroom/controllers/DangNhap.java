@@ -4,14 +4,12 @@ import java.util.logging.Logger;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.websocket.Session;
 
 import com.mongodb.client.FindIterable;
 
 import org.bson.Document;
 
 import chatroom.models.Response;
-import chatroom.models.ResponseSender;
 import chatroom.utils.Hash;
 
 public class DangNhap {
@@ -21,7 +19,7 @@ public class DangNhap {
         logger.info("Created DangNhap instance");
     }
 
-    public static void dangNhap(Session session, Database db, JsonObject eventPayload) {
+    public static Response dangNhap(Database db, JsonObject eventPayload) {
         Response response = new Response();
         String username = eventPayload.getString("username");
         String md5Password = Hash.getMd5(eventPayload.getString("password"));
@@ -46,6 +44,6 @@ public class DangNhap {
             response.setCode(1);
             response.setMessage("Sai tên đăng nhập hoặc mật khẩu");
         }
-        ResponseSender.send(session, response);
+        return response;
     }
 }
