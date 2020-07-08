@@ -33,7 +33,8 @@ public class DangKy {
 			String token = Hash.getMd5(username.concat(eventPayload.getString("password")).toString());
 			
 			FindIterable<Document> result = db.findOne("username", username);
-			Response response = new Response();
+			Response response = new Response(); 
+			response.setType("register");
 			if(result.first() != null) {
 				response.setCode(1);
 				response.setMessage("Tên tài khoản đã được sử dụng");
