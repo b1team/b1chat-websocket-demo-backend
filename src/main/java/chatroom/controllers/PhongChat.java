@@ -61,8 +61,6 @@ public class PhongChat {
 
 	@OnClose
 	public void onClose(Session closedSession) {
-		Message message = new Message();
-		String username = "";
 		String token = "";
 		for (Map.Entry<String, Session> entry : onlineUsers.entrySet()) {
 			Session onlineSession = entry.getValue();
@@ -71,25 +69,24 @@ public class PhongChat {
 			}
 		}
 
-		if (token.equals("")) { // khong tim thay trong danh sach online
-			username = "Someone";
-		}
-		// create message o day
-		else {
+		if (!token.equals("")) {
+			Message message = new Message();
+			String username = "Someone";
 			Database userDB = new Database("users");
 			FindIterable<Document> result = userDB.findOne("token", token);
 			if(result.first() != null) {
 				Document doc = result.first();
 				username = doc.getString("username");
-				
 			}
 			onlineUsers.remove(token);
+			message.setContent(String.format("%s đã rời khỏi nhóm chat", username));
+			message.setUsername("System");
+					
+			//broadcast
+			MessageSender.broadcast(message, onlineUsers.values());
+			logger.info(String.format("%s disconnected", username));
 		}
-		message.setContent(String.format("%s đã rời khỏi nhóm chat", username));
-		message.setUsername("System");
-		//broadcast
-		MessageSender.broadcast(message, onlineUsers.values());
-		logger.info(String.format("%s disconnected", username));
+
 	}
 
 }
