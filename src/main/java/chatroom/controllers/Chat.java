@@ -17,12 +17,11 @@ public class Chat {
     private Chat() {
         // create chat
     }
-// Phai la event pan aj ben phong chat minh de event maf
+
     public static Response send(Database userDB, Database messageDB, Map<String, Session> onlineUsers,
                                 String token, String content) {
         Response response = new Response();
         response.setType("send_message");
-        Document mess = new Document();
         FindIterable<Document> result = userDB.findOne("token", token);
         if (result.first() != null) {
             String defaultUsername = "Someone";
@@ -35,9 +34,11 @@ public class Chat {
             message.setUsername(username);
             message.setContent(content);
 
-            mess.append(username, content);
-            mess.append("createAt", dateTime());
-            messageDB.insert(mess);
+            Document insertedMessage = new Document();
+            insertedMessage.append("username", username);
+            insertedMessage.append("content", content);
+            insertedMessage.append("createAt", dateTime());
+            messageDB.insert(insertedMessage);
             MessageSender.broadcast(message, onlineUsers.values());
 
             response.setCode(0);

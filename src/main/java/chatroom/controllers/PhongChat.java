@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
@@ -13,7 +15,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 
 import org.bson.Document;
 
@@ -27,6 +31,7 @@ public class PhongChat {
 	@OnMessage
 	public void onMessage(Event event, Session session) throws IOException, EncodeException {
 		Response response = new Response();
+		Response lastestMessageResponse = new Response();
 		try {
 			Database userDB = new Database("users");
 			Database MessageDB = new Database("messages");
@@ -42,9 +47,37 @@ public class PhongChat {
 				JsonObject eventPayload = event.getPayload();
 				if (eventPayload != null) {
 					String token = eventPayload.getString("token");
-					response = JoinChat.join(userDB, onlineUsers, token, session);
+					if(onlineUsers.containsKey(token)){
+						response.setType("join_chat");
+						response.setMessage("join chat is already");
+					}else{
+						response = JoinChat.join(userDB, onlineUsers, token, session);
+					}
 				} else {
 					response.setMessage("Invalid payload");
+				}
+				if(response.getCode() == 0){
+					JsonArrayBuilder messagesBuilder = Json.createArrayBuilder();
+					FindIterable<Document> cursor = MessageDB.getCollection().find().sort(new BasicDBObject("createAt", -1))
+							.limit(50);
+					MongoCursor<Document> iterator = cursor.iterator();
+					Integer num_of_messages = 0;
+					while(iterator.hasNext()){
+						num_of_messages += 1;
+						Document doc = iterator.next();
+						messagesBuilder = messagesBuilder.add(Json.createObjectBuilder()
+												.add("username", doc.getString("username"))
+												.add("content", doc.getString("content"))
+												.add("createAt", doc.getString("createAt"))
+												.build());
+					}
+					JsonObject lastestMessagePayload = Json.createObjectBuilder()
+														   .add("count", num_of_messages)
+														   .add("messages", messagesBuilder.build())
+														   .build();
+					lastestMessageResponse.setPayload(lastestMessagePayload);
+					lastestMessageResponse.setCode(0);
+					lastestMessageResponse.setType("lastest_messages");
 				}
 			}
 		} catch (Exception exception) {
@@ -52,6 +85,9 @@ public class PhongChat {
 			response.setMessage("An error occurred while parse payload");
 		}
 		EventSender.send(session, Event.createResponseEvent(response));
+		if(lastestMessageResponse.getCode() == 0){
+			EventSender.send(session, Event.createResponseEvent(lastestMessageResponse));
+		}
 	}
 
 	@OnOpen
