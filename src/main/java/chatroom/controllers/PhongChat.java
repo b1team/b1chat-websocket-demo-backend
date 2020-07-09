@@ -37,7 +37,7 @@ public class PhongChat {
 			Database MessageDB = new Database("messages");
 			if (event.getAction().equals("login")) { // event
 				JsonObject eventPayload = event.getPayload();
-				response = DangNhap.dangNhap(userDB, eventPayload);
+				response = DangNhap.dangNhap(userDB, eventPayload, onlineUsers);
 			} else if (event.getAction().equals("send_message")) {
 				JsonObject eventPayload = event.getPayload();
 				String token = eventPayload.getString("token");
@@ -47,12 +47,7 @@ public class PhongChat {
 				JsonObject eventPayload = event.getPayload();
 				if (eventPayload != null) {
 					String token = eventPayload.getString("token");
-					if(onlineUsers.containsKey(token)){
-						response.setType("join_chat");
-						response.setMessage("join chat is already");
-					}else{
-						response = JoinChat.join(userDB, onlineUsers, token, session);
-					}
+					response = JoinChat.join(userDB, onlineUsers, token, session);
 				} else {
 					response.setMessage("Invalid payload");
 				}
