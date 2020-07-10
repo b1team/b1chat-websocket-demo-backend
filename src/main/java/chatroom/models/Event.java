@@ -45,4 +45,4 @@ public class Event {
 		event.payload = message.toJson();
 		return event;
 	}
-}
+} 
