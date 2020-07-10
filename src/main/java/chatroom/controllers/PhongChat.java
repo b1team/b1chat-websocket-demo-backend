@@ -74,6 +74,11 @@ public class PhongChat {
 					lastestMessageResponse.setCode(0);
 					lastestMessageResponse.setType("lastest_messages");
 				}
+			} else if(event.getAction().equals("typing-event")){
+				JsonObject eventPayload = event.getPayload();
+				String token = eventPayload.getString("token");
+				int typing = eventPayload.getInt("typing");
+				response = Usertyping.typingHandle(userDB, onlineUsers, token, typing, session);
 			}
 		} catch (Exception exception) {
 			logger.info(exception.toString());
